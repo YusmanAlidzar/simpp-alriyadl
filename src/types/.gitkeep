@@ -1,0 +1,4 @@
+// File ini kosong — akan diisi di Tahap 2 (setup SQLite)
+// Interface TypeScript yang akan dibuat:
+//   - santri.ts  → interface Santri, FormSantri
+//   - kelas.ts   → interface Kelas

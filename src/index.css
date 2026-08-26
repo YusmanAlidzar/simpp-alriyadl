@@ -1,0 +1,37 @@
+/* Direktif wajib Tailwind CSS — urutan ini penting, jangan diubah */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Aturan cetak (@media print) ──────────────────────────────
+   Saat window.print() dipanggil:
+   - html/body height dibebaskan (fix bug WebView2 "limit is 1 page")
+   - Sidebar kiri disembunyikan (juga via Tailwind print:hidden)
+   - Semua overflow visible agar konten multi-halaman bisa tercetak
+   - Baris tabel tidak terpotong di tengah halaman
+*/
+@media print {
+  /* Wajib: bebaskan height html & body dari constraint 100vh */
+  html, body {
+    height: auto !important;
+    overflow: visible !important;
+    background: white !important;
+  }
+
+  /* Sembunyikan sidebar navigasi */
+  aside { display: none !important; }
+
+  /* Konten mengisi halaman penuh tanpa clipping */
+  main {
+    display: block !important;
+    overflow: visible !important;
+    height: auto !important;
+    width: 100% !important;
+  }
+
+  /* Hindari page break di dalam baris tabel */
+  tr { page-break-inside: avoid; }
+
+  /* Ukuran margin halaman cetak */
+  @page { margin: 1.5cm; }
+}

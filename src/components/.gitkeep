@@ -1,0 +1,5 @@
+// File ini kosong — folder components/ akan diisi mulai Tahap 3
+// Komponen yang akan dibuat:
+//   - Table.tsx      → tabel data santri
+//   - Modal.tsx      → dialog konfirmasi hapus, dll
+//   - SearchBar.tsx  → input pencarian

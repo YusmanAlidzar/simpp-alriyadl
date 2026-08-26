@@ -1,0 +1,4 @@
+// File ini kosong — akan diisi di Tahap 2 (setup SQLite)
+// File yang akan dibuat:
+//   - db.ts     → semua fungsi query database terpusat di sini
+//   - format.ts → helper format tanggal, teks, dll
