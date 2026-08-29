@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "Pendataan Santri — SIMPP Al-Riyadl",
+        "title": "Sistem Informasi Manajemen Pondok Pesantren (SIMPP) Al-Riyadl",
         "width": 1200,
         "height": 750,
         "minWidth": 900,
@@ -23,7 +23,9 @@
       "csp": null,
       "assetProtocol": {
         "enable": true,
-        "scope": ["$APPDATA/com.alriyadl.simpp/**"]
+        "scope": [
+          "$APPDATA/com.alriyadl.simpp/**"
+        ]
       }
     }
   },
