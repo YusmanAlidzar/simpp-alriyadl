@@ -6,6 +6,8 @@ import { join } from "@tauri-apps/api/path";
 import type { SantriForm } from "../types/santri";
 import type { Kelas } from "../types/kelas";
 import { FORM_KOSONG } from "../types/santri";
+import { LuArrowLeft, LuUser } from "react-icons/lu";
+import { FaExclamationTriangle, FaCheckCircle } from "react-icons/fa";
 import {
   getAllKelas,
   getSantriById,
@@ -23,14 +25,15 @@ interface FormSantriProps {
 }
 
 export default function FormSantri({ santriId, onSelesai, onBatal }: FormSantriProps) {
-  const [form, setForm]             = useState<SantriForm>(FORM_KOSONG);
-  const [kelas, setKelas]           = useState<Kelas[]>([]);
-  const [loading, setLoading]       = useState(false);
-  const [menyimpan, setMenyimpan]   = useState(false);
-  const [error, setError]           = useState<string | null>(null);
+  const [form, setForm] = useState<SantriForm>(FORM_KOSONG);
+  const [kelas, setKelas] = useState<Kelas[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [menyimpan, setMenyimpan] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [sukses, setSukses] = useState<string | null>(null);
   // State foto: simpan path absolut untuk display, dan path relatif untuk DB
   const [fotoAbsolut, setFotoAbsolut] = useState<string | null>(null);
-  const [uploadFoto, setUploadFoto]   = useState(false); // loading saat proses copy file
+  const [uploadFoto, setUploadFoto] = useState(false); // loading saat proses copy file
 
   const modeEdit = santriId !== null;
 
@@ -47,18 +50,18 @@ export default function FormSantri({ santriId, onSelesai, onBatal }: FormSantriP
         setKelas(daftarKelas);
         if (dataSantri) {
           setForm({
-            nis:             dataSantri.nis ?? "",
-            nama_lengkap:    dataSantri.nama_lengkap,
-            jenis_kelamin:   (dataSantri.jenis_kelamin ?? "") as SantriForm["jenis_kelamin"],
-            tempat_lahir:    dataSantri.tempat_lahir ?? "",
-            tanggal_lahir:   dataSantri.tanggal_lahir ?? "",
-            alamat:          dataSantri.alamat ?? "",
-            nama_orang_tua:  dataSantri.nama_orang_tua ?? "",
+            nis: dataSantri.nis ?? "",
+            nama_lengkap: dataSantri.nama_lengkap,
+            jenis_kelamin: (dataSantri.jenis_kelamin ?? "") as SantriForm["jenis_kelamin"],
+            tempat_lahir: dataSantri.tempat_lahir ?? "",
+            tanggal_lahir: dataSantri.tanggal_lahir ?? "",
+            alamat: dataSantri.alamat ?? "",
+            nama_orang_tua: dataSantri.nama_orang_tua ?? "",
             no_hp_orang_tua: dataSantri.no_hp_orang_tua ?? "",
-            kelas_id:        dataSantri.kelas_id?.toString() ?? "",
-            status:          dataSantri.status,
-            tanggal_masuk:   dataSantri.tanggal_masuk ?? "",
-            catatan:         dataSantri.catatan ?? "",
+            kelas_id: dataSantri.kelas_id?.toString() ?? "",
+            status: dataSantri.status,
+            tanggal_masuk: dataSantri.tanggal_masuk ?? "",
+            catatan: dataSantri.catatan ?? "",
           });
           // Jika sudah punya foto, resolve path absolut untuk ditampilkan
           if (dataSantri.foto_path) {
@@ -144,11 +147,12 @@ export default function FormSantri({ santriId, onSelesai, onBatal }: FormSantriP
   function handleChange(field: keyof SantriForm, value: string) {
     setForm((prev) => ({ ...prev, [field]: value }));
     setError(null);
+    setSukses(null);
   }
 
   function validasi(): string | null {
     if (!form.nama_lengkap.trim()) return "Nama lengkap wajib diisi.";
-    if (!form.jenis_kelamin)       return "Jenis kelamin wajib dipilih.";
+    if (!form.jenis_kelamin) return "Jenis kelamin wajib dipilih.";
     return null;
   }
 
@@ -161,10 +165,15 @@ export default function FormSantri({ santriId, onSelesai, onBatal }: FormSantriP
     try {
       if (modeEdit && santriId) {
         await editSantri(santriId, form);
+        setSukses("Data santri berhasil diperbarui!");
       } else {
         await tambahSantri(form);
+        setSukses("Data santri berhasil ditambahkan!");
       }
-      onSelesai();
+
+      setTimeout(() => {
+        onSelesai();
+      }, 1500);
     } catch (err: unknown) {
       const msg = String(err);
       if (msg.includes("UNIQUE") && msg.includes("nis")) {
@@ -192,7 +201,7 @@ export default function FormSantri({ santriId, onSelesai, onBatal }: FormSantriP
         <button type="button" onClick={onBatal}
           className="p-2 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors text-lg"
           title="Kembali ke daftar">
-          ←
+          <LuArrowLeft />
         </button>
         <div>
           <h2 className="text-2xl font-bold text-gray-800">
@@ -208,13 +217,6 @@ export default function FormSantri({ santriId, onSelesai, onBatal }: FormSantriP
 
       <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
 
-        {/* Banner error */}
-        {error && (
-          <div className="mb-5 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-            ⚠️ {error}
-          </div>
-        )}
-
         {/* ── Area Foto (hanya tampil di mode edit) ── */}
         {modeEdit && (
           <div className="flex items-start gap-5 mb-6 pb-6 border-b border-gray-100">
@@ -227,7 +229,7 @@ export default function FormSantri({ santriId, onSelesai, onBatal }: FormSantriP
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <span className="text-4xl text-gray-300">👤</span>
+                <span className="text-4xl text-gray-300"><LuUser /></span>
               )}
             </div>
             {/* Tombol upload/hapus foto */}
@@ -260,7 +262,7 @@ export default function FormSantri({ santriId, onSelesai, onBatal }: FormSantriP
         {/* Info: foto bisa ditambah setelah simpan */}
         {!modeEdit && (
           <div className="mb-5 p-3 bg-blue-50 border border-blue-100 rounded-lg text-blue-600 text-xs">
-            💡 Foto santri bisa ditambahkan setelah data disimpan — buka halaman Edit santri tersebut.
+            ⓘ Foto santri bisa ditambahkan setelah data disimpan, buka halaman Edit santri.
           </div>
         )}
 
@@ -359,6 +361,22 @@ export default function FormSantri({ santriId, onSelesai, onBatal }: FormSantriP
               className={`${cls} resize-none`} />
           </Field>
         </div>
+
+        {/* Banner error */}
+        {error && (
+          <div className="mb-5 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm flex items-center gap-2">
+            <FaExclamationTriangle />
+            <span>Error: {error}</span>
+          </div>
+        )}
+
+        {/* Banner sukses */}
+        {sukses && (
+          <div className="mb-5 p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm flex items-center gap-2">
+            <FaCheckCircle />
+            <span>Sukses: {sukses}</span>
+          </div>
+        )}
 
         {/* ── Tombol aksi ── */}
         <div className="flex gap-3 justify-end pt-4 border-t border-gray-100">

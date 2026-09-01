@@ -111,20 +111,38 @@ async function buatTabel(): Promise<void> {
 async function seedKelas(): Promise<void> {
   const database = getDb();
 
+  // Hapus referensi kelas lama di tabel santri agar tidak kena error FOREIGN KEY constraint
+  await database.execute(`
+    UPDATE santri
+    SET kelas_id = NULL
+    WHERE kelas_id IN (
+      SELECT id FROM kelas
+      WHERE nama_kelas NOT IN (
+        'Ibtida 1', 'Ibtida 2', 'Ibtida 3',
+        'Wustho 1', 'Wustho 2',
+        'Ulya', 'Tachocuz'
+      )
+    )
+  `);
+
+  // Hapus kelas lama yang sudah tidak dipakai (agar rapi setelah disederhanakan)
+  await database.execute(`
+    DELETE FROM kelas
+    WHERE nama_kelas NOT IN (
+      'Ibtida 1', 'Ibtida 2', 'Ibtida 3',
+      'Wustho 1', 'Wustho 2',
+      'Ulya', 'Tachocuz'
+    )
+  `);
+
   const kelasList = [
-    { nama: "Ibtida' 1A", tingkat: "Ibtida'" },
-    { nama: "Ibtida' 1B", tingkat: "Ibtida'" },
-    { nama: "Ibtida' 1C", tingkat: "Ibtida'" },
-    { nama: "Ibtida' 2A", tingkat: "Ibtida'" },
-    { nama: "Ibtida' 2B", tingkat: "Ibtida'" },
-    { nama: "Ibtida' 2C", tingkat: "Ibtida'" },
-    { nama: "Ibtida' 3A", tingkat: "Ibtida'" },
-    { nama: "Ibtida' 3B", tingkat: "Ibtida'" },
-    { nama: "Ibtida' 3C", tingkat: "Ibtida'" },
-    { nama: "Wustho' 1",  tingkat: "Wustho'" },
-    { nama: "Wustho' 2",  tingkat: "Wustho'" },
-    { nama: "Ulya",       tingkat: "Ulya" },
-    { nama: "Takhosus",   tingkat: "Takhosus" },
+    { nama: "Ibtida 1", tingkat: "Ibtida" },
+    { nama: "Ibtida 2", tingkat: "Ibtida" },
+    { nama: "Ibtida 3", tingkat: "Ibtida" },
+    { nama: "Wustho 1", tingkat: "Wustho" },
+    { nama: "Wustho 2", tingkat: "Wustho" },
+    { nama: "Ulya",     tingkat: "Ulya" },
+    { nama: "Tachocuz", tingkat: "Takhosus" },
   ];
 
   for (const k of kelasList) {
@@ -139,9 +157,18 @@ async function seedKelas(): Promise<void> {
 // KELAS — Query
 // ============================================================
 
-/** Ambil semua kelas, urut berdasarkan id (urutan data dimasukkan) */
+/** Ambil semua kelas, urut berdasarkan tingkat dan nama */
 export async function getAllKelas(): Promise<Kelas[]> {
-  return await getDb().select<Kelas[]>(`SELECT * FROM kelas ORDER BY id ASC`);
+  return await getDb().select<Kelas[]>(`
+    SELECT * FROM kelas 
+    ORDER BY CASE tingkat
+      WHEN 'Ibtida' THEN 1
+      WHEN 'Wustho' THEN 2
+      WHEN 'Ulya' THEN 3
+      WHEN 'Takhosus' THEN 4
+      ELSE 5
+    END ASC, nama_kelas ASC
+  `);
 }
 
 /**
@@ -190,7 +217,13 @@ export async function getRekapSantri(): Promise<RekapSantri> {
     FROM kelas k
     LEFT JOIN santri s ON s.kelas_id = k.id
     GROUP BY k.id
-    ORDER BY k.id
+    ORDER BY CASE k.tingkat
+      WHEN 'Ibtida' THEN 1
+      WHEN 'Wustho' THEN 2
+      WHEN 'Ulya' THEN 3
+      WHEN 'Takhosus' THEN 4
+      ELSE 5
+    END ASC, k.nama_kelas ASC
   `);
 
   return {

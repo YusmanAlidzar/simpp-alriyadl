@@ -67,7 +67,7 @@ Installer akan ada di `src-tauri/target/release/bundle/nsis/`.
 
 ## Status proyek
 
-✅ **Selesai (v0.1.0)** — Semua fitur inti (CRUD Santri, Laporan, Cetak PDF, Upload Foto, Backup & Restore) telah selesai diimplementasikan.
+✅ **Selesai (v1.1.0)** - Semua fitur inti (CRUD Santri, Laporan, Cetak PDF, Upload Foto, Backup & Restore) telah selesai diimplementasikan.
 
-## Directory
-C:\Users\thinkpad\AppData\Roaming\com.alriyadl.simpp\
+## Directory Database
+C:\Users\[username]\AppData\Roaming\com.alriyadl.simpp\

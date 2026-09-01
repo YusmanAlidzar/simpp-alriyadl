@@ -5,6 +5,7 @@ import type { Santri } from "../types/santri";
 import type { Kelas } from "../types/kelas";
 import { getAllSantri, getAllKelas, hapusSantri, getFotoDirPath, fotoKeDataUrl } from "../lib/db";
 import Modal from "../components/Modal";
+import { LuSearch } from "react-icons/lu";
 
 interface DaftarSantriProps {
   onTambah: () => void;
@@ -13,17 +14,17 @@ interface DaftarSantriProps {
 
 // Warna badge untuk setiap status santri
 const STATUS_STYLE: Record<string, string> = {
-  aktif:    "bg-green-100 text-green-700",
-  lulus:    "bg-blue-100 text-blue-700",
-  keluar:   "bg-red-100 text-red-700",
+  aktif: "bg-green-100 text-green-700",
+  lulus: "bg-blue-100 text-blue-700",
+  keluar: "bg-red-100 text-red-700",
   nonaktif: "bg-gray-100 text-gray-500",
 };
 
 export default function DaftarSantri({ onTambah, onEdit }: DaftarSantriProps) {
-  const [listSantri, setListSantri]   = useState<Santri[]>([]);
-  const [listKelas, setListKelas]     = useState<Kelas[]>([]);
-  const [loading, setLoading]         = useState(true);
-  const [cari, setCari]               = useState("");
+  const [listSantri, setListSantri] = useState<Santri[]>([]);
+  const [listKelas, setListKelas] = useState<Kelas[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [cari, setCari] = useState("");
   const [filterKelas, setFilterKelas] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
 
@@ -48,9 +49,9 @@ export default function DaftarSantri({ onTambah, onEdit }: DaftarSantriProps) {
     setLoading(true);
     try {
       const hasil = await getAllSantri({
-        cari:    cari || undefined,
+        cari: cari || undefined,
         kelasId: filterKelas ? parseInt(filterKelas) : null,
-        status:  filterStatus || null,
+        status: filterStatus || null,
       });
       setListSantri(hasil);
     } catch (err) {
@@ -95,13 +96,18 @@ export default function DaftarSantri({ onTambah, onEdit }: DaftarSantriProps) {
 
       {/* ── Filter bar ── */}
       <div className="flex gap-3 mb-4 flex-wrap">
-        <input
-          type="text"
-          placeholder="🔍  Cari nama atau NIS..."
-          value={cari}
-          onChange={(e) => setCari(e.target.value)}
-          className="flex-1 min-w-[200px] border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
-        />
+        <div className="relative flex-1 min-w-[200px]">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <LuSearch className="text-gray-400" />
+          </div>
+          <input
+            type="text"
+            placeholder="Cari nama atau NIS..."
+            value={cari}
+            onChange={(e) => setCari(e.target.value)}
+            className="w-full border border-gray-300 rounded-lg pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
+          />
+        </div>
         <select
           value={filterKelas}
           onChange={(e) => setFilterKelas(e.target.value)}
@@ -176,9 +182,8 @@ export default function DaftarSantri({ onTambah, onEdit }: DaftarSantriProps) {
                   </td>
                   <td className="px-4 py-3">
                     <span
-                      className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        STATUS_STYLE[s.status] ?? "bg-gray-100 text-gray-500"
-                      }`}
+                      className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-medium ${STATUS_STYLE[s.status] ?? "bg-gray-100 text-gray-500"
+                        }`}
                     >
                       {s.status}
                     </span>

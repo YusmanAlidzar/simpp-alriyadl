@@ -1,6 +1,7 @@
 // BackupRestore.tsx — Halaman manajemen backup database
 import { useState, useEffect } from "react";
 import { confirm, message } from "@tauri-apps/plugin-dialog";
+import { FaSave, FaSync, FaArchive } from "react-icons/fa";
 import { buatBackup, getDaftarBackup, hapusBackup, restoreBackup } from "../lib/db";
 
 interface BackupRestoreProps {
@@ -103,9 +104,10 @@ export default function BackupRestore({ onSelesaiRestore }: BackupRestoreProps) 
         <button
           onClick={handleBuatBackup}
           disabled={loadingAction}
-          className="px-6 py-2.5 bg-green-600 hover:bg-green-700 disabled:bg-gray-300 text-white font-semibold rounded-lg shadow-sm transition-colors"
+          className="flex items-center gap-2 px-6 py-2.5 bg-green-600 hover:bg-green-700 disabled:bg-gray-300 text-white font-semibold rounded-lg shadow-sm transition-colors"
         >
-          {loadingAction ? "Memproses..." : "💾 Backup Sekarang"}
+          <FaSave />
+          <span>{loadingAction ? "Memproses..." : "Backup Sekarang"}</span>
         </button>
       </div>
 
@@ -113,7 +115,7 @@ export default function BackupRestore({ onSelesaiRestore }: BackupRestoreProps) 
         <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
           <h3 className="text-lg font-bold text-gray-800">Daftar File Backup</h3>
         </div>
-        
+
         {loading ? (
           <div className="p-8 text-center text-gray-500">Memuat daftar...</div>
         ) : listBackup.length === 0 ? (
@@ -125,12 +127,12 @@ export default function BackupRestore({ onSelesaiRestore }: BackupRestoreProps) 
             {listBackup.map((file) => (
               <li key={file} className="p-4 px-6 flex items-center justify-between hover:bg-gray-50 transition-colors">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
-                    🗄️
+                  <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                    <FaArchive className="text-blue-600" />
                   </div>
                   <div>
                     <p className="font-semibold text-gray-800 font-mono text-sm">{file}</p>
-                    <p className="text-xs text-gray-500 mt-0.5">Disimpan di AppData/backups/</p>
+                    <p className="text-xs text-gray-500 mt-0.5">Disimpan di .../AppData/backups/</p>
                   </div>
                 </div>
                 <div className="flex gap-2">
@@ -139,7 +141,7 @@ export default function BackupRestore({ onSelesaiRestore }: BackupRestoreProps) 
                     disabled={loadingAction}
                     className="px-4 py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 rounded-md transition-colors"
                   >
-                    ♻️ Restore
+                    <FaSync className="inline mr-1" /> Restore
                   </button>
                   <button
                     onClick={() => handleHapus(file)}

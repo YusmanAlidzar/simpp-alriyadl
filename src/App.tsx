@@ -11,7 +11,7 @@ import BackupRestore from "./pages/BackupRestore";
 type NamaHalaman = "daftar" | "tambah" | "edit" | "laporan" | "backup";
 
 function App() {
-  const [halaman, setHalaman]           = useState<NamaHalaman>("daftar");
+  const [halaman, setHalaman]           = useState<NamaHalaman>("laporan");
   const [santriIdEdit, setSantriIdEdit] = useState<number | null>(null);
 
   function keEdit(id: number) {

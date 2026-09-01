@@ -4,25 +4,26 @@ import type { RekapSantri } from "../types/rekap";
 import type { Santri } from "../types/santri";
 import type { Kelas } from "../types/kelas";
 import { getRekapSantri, getAllSantri, getAllKelas } from "../lib/db";
+import { LuUsers, LuPrinter } from "react-icons/lu";
 
 type TabAktif = "rekap" | "daftar";
 
 // Warna kartu per status
 const STATUS_STYLE: Record<string, { bg: string; text: string; label: string }> = {
-  aktif:    { bg: "bg-green-50",  text: "text-green-700",  label: "Aktif"    },
-  lulus:    { bg: "bg-blue-50",   text: "text-blue-700",   label: "Lulus"    },
-  keluar:   { bg: "bg-red-50",    text: "text-red-700",    label: "Keluar"   },
-  nonaktif: { bg: "bg-gray-50",   text: "text-gray-600",   label: "Nonaktif" },
+  aktif: { bg: "bg-green-50", text: "text-green-700", label: "Aktif" },
+  lulus: { bg: "bg-blue-50", text: "text-blue-700", label: "Lulus" },
+  keluar: { bg: "bg-red-50", text: "text-red-700", label: "Keluar" },
+  nonaktif: { bg: "bg-gray-50", text: "text-gray-600", label: "Nonaktif" },
 };
 
 export default function Laporan() {
-  const [tab, setTab]           = useState<TabAktif>("rekap");
-  const [rekap, setRekap]       = useState<RekapSantri | null>(null);
+  const [tab, setTab] = useState<TabAktif>("rekap");
+  const [rekap, setRekap] = useState<RekapSantri | null>(null);
   const [listSantri, setListSantri] = useState<Santri[]>([]);
-  const [listKelas, setListKelas]   = useState<Kelas[]>([]);
-  const [filterKelas, setFilterKelas]   = useState("");
+  const [listKelas, setListKelas] = useState<Kelas[]>([]);
+  const [filterKelas, setFilterKelas] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
-  const [loading, setLoading]   = useState(true);
+  const [loading, setLoading] = useState(true);
 
   // Format tanggal cetak: "26 Agustus 2026"
   const tanggalCetak = new Date().toLocaleDateString("id-ID", {
@@ -42,7 +43,7 @@ export default function Laporan() {
     if (tab !== "daftar") return;
     getAllSantri({
       kelasId: filterKelas ? parseInt(filterKelas) : null,
-      status:  filterStatus || null,
+      status: filterStatus || null,
     })
       .then(setListSantri)
       .catch(console.error);
@@ -57,7 +58,7 @@ export default function Laporan() {
 
       {/* ── Header halaman (disembunyikan saat print) ── */}
       <div className="print:hidden mb-6">
-        <h2 className="text-2xl font-bold text-gray-800">Laporan & Cetak</h2>
+        <h2 className="text-2xl font-bold text-gray-800">Dashboard: Laporan & Cetak</h2>
         <p className="text-sm text-gray-500 mt-0.5">
           Rekap statistik santri dan daftar untuk dicetak
         </p>
@@ -67,23 +68,23 @@ export default function Laporan() {
       <div className="print:hidden flex gap-1 mb-6 border-b border-gray-200">
         <button
           onClick={() => setTab("rekap")}
-          className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
-            tab === "rekap"
-              ? "border-green-600 text-green-700"
-              : "border-transparent text-gray-500 hover:text-gray-800"
-          }`}
+          className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${tab === "rekap"
+            ? "border-green-600 text-green-700"
+            : "border-transparent text-gray-500 hover:text-gray-800"
+            }`}
         >
-          📊 Rekap Statistik
+          <LuUsers className="inline-block mr-1.5 mb-0.5 text-base" />
+          Rekap Statistik
         </button>
         <button
           onClick={() => setTab("daftar")}
-          className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
-            tab === "daftar"
-              ? "border-green-600 text-green-700"
-              : "border-transparent text-gray-500 hover:text-gray-800"
-          }`}
+          className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${tab === "daftar"
+            ? "border-green-600 text-green-700"
+            : "border-transparent text-gray-500 hover:text-gray-800"
+            }`}
         >
-          🖨 Cetak Daftar Santri
+          <LuPrinter className="inline-block mr-1.5 mb-0.5 text-base" />
+          Cetak Daftar Santri
         </button>
       </div>
 
@@ -115,8 +116,8 @@ function TabRekap({ rekap }: { rekap: RekapSantri }) {
       {/* Kartu ringkasan total */}
       <div className="grid grid-cols-3 gap-4">
         <KartuTotal label="Total Santri" nilai={rekap.totalSemua} warna="text-gray-800" />
-        <KartuTotal label="Laki-laki"    nilai={rekap.totalLaki}      warna="text-blue-700" />
-        <KartuTotal label="Perempuan"    nilai={rekap.totalPerempuan} warna="text-pink-600" />
+        <KartuTotal label="Laki-laki" nilai={rekap.totalLaki} warna="text-blue-700" />
+        <KartuTotal label="Perempuan" nilai={rekap.totalPerempuan} warna="text-pink-600" />
       </div>
 
       {/* Tabel per status */}
@@ -223,7 +224,7 @@ function TabDaftar({
 }: TabDaftarProps) {
 
   // Label filter untuk header cetak
-  const labelKelas  = listKelas.find((k) => k.id.toString() === filterKelas)?.nama_kelas ?? "Semua Kelas";
+  const labelKelas = listKelas.find((k) => k.id.toString() === filterKelas)?.nama_kelas ?? "Semua Kelas";
   const labelStatus = filterStatus
     ? filterStatus.charAt(0).toUpperCase() + filterStatus.slice(1)
     : "Semua Status";
@@ -261,7 +262,8 @@ function TabDaftar({
           onClick={() => window.print()}
           className="ml-auto px-5 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg transition-colors shadow-sm"
         >
-          🖨 Cetak / Simpan PDF
+          <LuPrinter className="inline-block mr-1.5 mb-0.5 text-base" />
+          Cetak/Simpan PDF
         </button>
       </div>
 

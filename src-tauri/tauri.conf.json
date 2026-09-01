@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "Sistem Informasi Manajemen Pondok Pesantren (SIMPP) Al-Riyadl",
+        "title": "SIMPP Al-Riyadl",
         "width": 1200,
         "height": 750,
         "minWidth": 900,
