@@ -67,7 +67,7 @@ Installer akan ada di `src-tauri/target/release/bundle/nsis/`.
 
 ## Status proyek
 
-✅ **Selesai (v1.1.0)** - Semua fitur inti (CRUD Santri, Laporan, Cetak PDF, Upload Foto, Backup & Restore) telah selesai diimplementasikan.
+✅ **Selesai (v1.2.0)** - Migrasi ke arsitektur ERD 8 tabel relasional yang lebih robust, perbaikan integrasi transaksi SQLite, refactoring form santri (multi-section), pengembalian fitur upload foto dengan format 3x4, dan peningkatan sistem validasi data.
 
 ## Directory Database
 C:\Users\[username]\AppData\Roaming\com.alriyadl.simpp\

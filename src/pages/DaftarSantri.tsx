@@ -9,7 +9,7 @@ import { LuSearch } from "react-icons/lu";
 
 interface DaftarSantriProps {
   onTambah: () => void;
-  onEdit: (id: number) => void;
+  onEdit: (nis: string) => void;
 }
 
 // Warna badge untuk setiap status santri
@@ -31,9 +31,9 @@ export default function DaftarSantri({ onTambah, onEdit }: DaftarSantriProps) {
   // State untuk modal konfirmasi hapus
   const [modalHapus, setModalHapus] = useState<{
     terbuka: boolean;
-    santriId: number | null;
+    nis: string | null;
     namaSantri: string;
-  }>({ terbuka: false, santriId: null, namaSantri: "" });
+  }>({ terbuka: false, nis: null, namaSantri: "" });
 
   // Load daftar kelas sekali saat komponen pertama kali muncul
   useEffect(() => {
@@ -63,10 +63,10 @@ export default function DaftarSantri({ onTambah, onEdit }: DaftarSantriProps) {
 
   // Dipanggil setelah user konfirmasi hapus
   async function eksekusiHapus() {
-    if (!modalHapus.santriId) return;
+    if (!modalHapus.nis) return;
     try {
-      await hapusSantri(modalHapus.santriId);
-      setModalHapus({ terbuka: false, santriId: null, namaSantri: "" });
+      await hapusSantri(modalHapus.nis);
+      setModalHapus({ terbuka: false, nis: null, namaSantri: "" });
       muatSantri(); // reload tabel setelah hapus
     } catch (err) {
       console.error("Gagal menghapus santri:", err);
@@ -166,7 +166,7 @@ export default function DaftarSantri({ onTambah, onEdit }: DaftarSantriProps) {
             <tbody>
               {listSantri.map((s, i) => (
                 <tr
-                  key={s.id}
+                  key={s.nis}
                   className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
                 >
                   <td className="px-4 py-3 text-gray-400">{i + 1}</td>
@@ -176,7 +176,7 @@ export default function DaftarSantri({ onTambah, onEdit }: DaftarSantriProps) {
                   <td className="px-4 py-3 text-gray-500 font-mono text-xs">
                     {s.nis ?? <span className="text-gray-300">-</span>}
                   </td>
-                  <td className="px-4 py-3 font-medium text-gray-800">{s.nama_lengkap}</td>
+                  <td className="px-4 py-3 font-medium text-gray-800">{s.nama_santri}</td>
                   <td className="px-4 py-3 text-gray-500">
                     {s.nama_kelas ?? <span className="text-gray-300">-</span>}
                   </td>
@@ -191,7 +191,7 @@ export default function DaftarSantri({ onTambah, onEdit }: DaftarSantriProps) {
                   <td className="px-4 py-3">
                     <div className="flex gap-1">
                       <button
-                        onClick={() => onEdit(s.id)}
+                        onClick={() => onEdit(s.nis)}
                         className="px-3 py-1 text-xs font-medium text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
                       >
                         Edit
@@ -200,8 +200,8 @@ export default function DaftarSantri({ onTambah, onEdit }: DaftarSantriProps) {
                         onClick={() =>
                           setModalHapus({
                             terbuka: true,
-                            santriId: s.id,
-                            namaSantri: s.nama_lengkap,
+                            nis: s.nis,
+                            namaSantri: s.nama_santri,
                           })
                         }
                         className="px-3 py-1 text-xs font-medium text-red-500 hover:bg-red-50 rounded-md transition-colors"
@@ -224,7 +224,7 @@ export default function DaftarSantri({ onTambah, onEdit }: DaftarSantriProps) {
           pesan={`Yakin ingin menghapus data "${modalHapus.namaSantri}"? Tindakan ini tidak bisa dibatalkan.`}
           onKonfirmasi={eksekusiHapus}
           onBatal={() =>
-            setModalHapus({ terbuka: false, santriId: null, namaSantri: "" })
+            setModalHapus({ terbuka: false, nis: null, namaSantri: "" })
           }
         />
       )}
@@ -233,22 +233,20 @@ export default function DaftarSantri({ onTambah, onEdit }: DaftarSantriProps) {
 }
 
 // ── Komponen avatar foto di tabel ──
-// Menampilkan foto kecil jika ada, atau lingkaran dengan inisial nama jika tidak ada.
 function FotoAvatar({ santri }: { santri: Santri }) {
   const [src, setSrc] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!santri.foto_path) return;
-    const namaFile = santri.foto_path.split("/").pop() ?? santri.foto_path;
+    if (!santri.foto_santri) return;
+    const namaFile = santri.foto_santri.split("/").pop() ?? santri.foto_santri;
     getFotoDirPath()
       .then((dir) => join(dir, namaFile))
       .then((pathAbsolut) => fotoKeDataUrl(pathAbsolut))
       .then((dataUrl) => setSrc(dataUrl))
       .catch(() => setSrc(null));
-  }, [santri.foto_path]);
+  }, [santri.foto_santri]);
 
-  // Ambil inisial dari nama lengkap (maks 2 huruf)
-  const inisial = santri.nama_lengkap
+  const inisial = (santri.nama_santri || "")
     .split(" ")
     .slice(0, 2)
     .map((w) => w[0]?.toUpperCase() ?? "")

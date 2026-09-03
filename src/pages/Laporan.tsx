@@ -299,10 +299,10 @@ function TabDaftar({
             </thead>
             <tbody>
               {listSantri.map((s, i) => (
-                <tr key={s.id} className="border-b border-gray-100 hover:bg-gray-50 print:hover:bg-transparent">
+                <tr key={s.nis} className="border-b border-gray-100 hover:bg-gray-50 print:hover:bg-transparent">
                   <td className="px-3 py-2 text-gray-400">{i + 1}</td>
                   <td className="px-3 py-2 font-mono text-xs text-gray-500">{s.nis ?? "-"}</td>
-                  <td className="px-3 py-2 font-medium text-gray-800">{s.nama_lengkap}</td>
+                  <td className="px-3 py-2 font-medium text-gray-800">{s.nama_santri}</td>
                   <td className="px-3 py-2 text-center text-gray-600">{s.jenis_kelamin ?? "-"}</td>
                   <td className="px-3 py-2 text-gray-600">{s.nama_kelas ?? "-"}</td>
                   <td className="px-3 py-2 capitalize text-gray-600">{s.status}</td>
@@ -311,7 +311,7 @@ function TabDaftar({
                       ? new Date(s.tanggal_masuk).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })
                       : "-"}
                   </td>
-                  <td className="px-3 py-2 text-gray-600">{s.nama_orang_tua ?? "-"}</td>
+                  <td className="px-3 py-2 text-gray-600">{s.nama_ayah || s.nama_ibu || "-"}</td>
                 </tr>
               ))}
             </tbody>

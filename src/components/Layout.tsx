@@ -25,25 +25,25 @@ export default function Layout({ children, halamanAktif, onNavigasi }: LayoutPro
         {/* Menu navigasi */}
         <nav className="flex-1 px-3 py-4 space-y-1">
           <NavItem
-            icon={<FaHome />}
+            icon={<FaHome size={15} />}
             label="Dashboard"
             aktif={halamanAktif === "laporan"}
             onClick={() => onNavigasi("laporan")}
           />
           <NavItem
-            icon={<FaUser />}
+            icon={<FaUser size={15} />}
             label="Daftar Santri"
             aktif={halamanAktif === "daftar"}
             onClick={() => onNavigasi("daftar")}
           />
           <NavItem
-            icon={<FaUserPlus />}
+            icon={<FaUserPlus size={15} />}
             label="Tambah Santri"
             aktif={halamanAktif === "tambah"}
             onClick={() => onNavigasi("tambah")}
           />
           <NavItem
-            icon={<FaHistory />}
+            icon={<FaHistory size={15} />}
             label="Backup & Restore"
             aktif={halamanAktif === "backup"}
             onClick={() => onNavigasi("backup")}

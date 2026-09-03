@@ -128,7 +128,7 @@ export default function BackupRestore({ onSelesaiRestore }: BackupRestoreProps) 
               <li key={file} className="p-4 px-6 flex items-center justify-between hover:bg-gray-50 transition-colors">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                    <FaArchive className="text-blue-600" />
+                    <FaArchive size={20} className="text-blue-600" />
                   </div>
                   <div>
                     <p className="font-semibold text-gray-800 font-mono text-sm">{file}</p>
@@ -141,7 +141,7 @@ export default function BackupRestore({ onSelesaiRestore }: BackupRestoreProps) 
                     disabled={loadingAction}
                     className="px-4 py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 rounded-md transition-colors"
                   >
-                    <FaSync className="inline mr-1" /> Restore
+                    <FaSync size={10} className="inline mr-1" /> Restore
                   </button>
                   <button
                     onClick={() => handleHapus(file)}

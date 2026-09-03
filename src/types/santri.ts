@@ -1,55 +1,158 @@
-// Interface untuk data santri yang diambil dari database
-// (termasuk field nama_kelas dari hasil JOIN dengan tabel kelas)
+// Interface untuk data santri yang diambil dari database untuk ditampilkan di list
 export interface Santri {
-  id: number;
-  nis: string | null;
-  nama_lengkap: string;
+  nis: string;
+  nik_santri: string;
+  nama_santri: string;
   jenis_kelamin: "L" | "P" | null;
   tempat_lahir: string | null;
   tanggal_lahir: string | null;
-  alamat: string | null;
-  nama_orang_tua: string | null;
-  no_hp_orang_tua: string | null;
-  kelas_id: number | null;
-  foto_path: string | null;
-  status: "aktif" | "lulus" | "keluar" | "nonaktif";
   tanggal_masuk: string | null;
-  catatan: string | null;
-  created_at: string;
-  updated_at: string;
-  // Dari LEFT JOIN dengan tabel kelas
+  kelas_id: number | null;
+  foto_santri: string | null;
+  status: "aktif" | "lulus" | "keluar" | "nonaktif";
+  
+  // Dari JOIN dengan tabel lain
   nama_kelas: string | null;
+  nama_ayah: string | null;
+  nama_ibu: string | null;
+  alamat: string | null; // Alamat lengkap
+  nomor_hp_ortu: string | null; // Gabungan no hp ayah/ibu
 }
 
-// Interface untuk state form (semua string karena berasal dari input HTML)
-// Dikonversi ke tipe yang tepat saat disimpan ke database
+// Interface untuk state form yang sangat besar
 export interface SantriForm {
-  nis: string;
-  nama_lengkap: string;
-  jenis_kelamin: "L" | "P" | "";
+  // 1. data_input_santri
+  nik_santri: string;
+  nama_santri: string;
   tempat_lahir: string;
   tanggal_lahir: string;
-  alamat: string;
-  nama_orang_tua: string;
-  no_hp_orang_tua: string;
-  kelas_id: string; // string di form, dikonversi ke number saat save
-  status: "aktif" | "lulus" | "keluar" | "nonaktif";
+  tingkat_sekolah: string;
+  jenis_kelamin: "L" | "P" | "";
   tanggal_masuk: string;
+  jumlah_saudara: string;
+  anak_ke: string;
+  cita_cita: string;
+  hobi: string;
+  nomor_hp_santri: string;
+  email_santri: string;
+  foto_santri: string | null;
+  
+  // 2. daftar_santri
+  nis: string;
+  kelas_id: string; // dikonversi ke number saat save
+  kelas_pengajian: string;
+  kobong: string;
+  status: "aktif" | "lulus" | "keluar" | "nonaktif";
   catatan: string;
+
+  // 3. info_ortu_wali
+  penghasilan_gabungan: string;
+  // foto ktp & kk ditunda
+
+  // 4. ayah_kandung
+  nik_ayah: string;
+  nama_ayah: string;
+  tempat_lahir_ayah: string;
+  tanggal_lahir_ayah: string;
+  status_hidup_ayah: string; // e.g., "Hidup", "Meninggal"
+  pendidikan_terakhir_ayah: string;
+  pekerjaan_utama_ayah: string;
+  nomor_hp_ayah: string;
+
+  // 5. ibu_kandung
+  nik_ibu: string;
+  nama_ibu: string;
+  tempat_lahir_ibu: string;
+  tanggal_lahir_ibu: string;
+  status_hidup_ibu: string;
+  pendidikan_terakhir_ibu: string;
+  pekerjaan_utama_ibu: string;
+  nomor_hp_ibu: string;
+
+  // 6. wali_santri
+  ada_wali: boolean; // Field virtual untuk form UI
+  nik_wali: string;
+  nama_wali: string;
+  tempat_lahir_wali: string;
+  tanggal_lahir_wali: string;
+  posisi_wali: string;
+  pendidikan_terakhir_wali: string;
+  pekerjaan_utama_wali: string;
+  nomor_hp_wali: string;
+
+  // 7. alamat_rumah
+  status_rumah: string;
+  provinsi: string;
+  kabupaten_kota: string;
+  kecamatan: string;
+  kelurahan_desa: string;
+  rt: string;
+  rw: string;
+  alamat_lengkap: string;
+  kode_pos: string;
 }
 
-// Nilai awal form kosong — dipakai saat mode tambah santri baru
+// Nilai awal form kosong
 export const FORM_KOSONG: SantriForm = {
-  nis: "",
-  nama_lengkap: "",
-  jenis_kelamin: "",
+  nik_santri: "",
+  nama_santri: "",
   tempat_lahir: "",
   tanggal_lahir: "",
-  alamat: "",
-  nama_orang_tua: "",
-  no_hp_orang_tua: "",
-  kelas_id: "",
-  status: "aktif",
+  tingkat_sekolah: "",
+  jenis_kelamin: "",
   tanggal_masuk: "",
+  jumlah_saudara: "",
+  anak_ke: "",
+  cita_cita: "",
+  hobi: "",
+  nomor_hp_santri: "",
+  email_santri: "",
+  foto_santri: null,
+
+  nis: "",
+  kelas_id: "",
+  kelas_pengajian: "",
+  kobong: "",
+  status: "aktif",
   catatan: "",
+
+  penghasilan_gabungan: "",
+
+  nik_ayah: "",
+  nama_ayah: "",
+  tempat_lahir_ayah: "",
+  tanggal_lahir_ayah: "",
+  status_hidup_ayah: "Hidup",
+  pendidikan_terakhir_ayah: "",
+  pekerjaan_utama_ayah: "",
+  nomor_hp_ayah: "",
+
+  nik_ibu: "",
+  nama_ibu: "",
+  tempat_lahir_ibu: "",
+  tanggal_lahir_ibu: "",
+  status_hidup_ibu: "Hidup",
+  pendidikan_terakhir_ibu: "",
+  pekerjaan_utama_ibu: "",
+  nomor_hp_ibu: "",
+
+  ada_wali: false,
+  nik_wali: "",
+  nama_wali: "",
+  tempat_lahir_wali: "",
+  tanggal_lahir_wali: "",
+  posisi_wali: "",
+  pendidikan_terakhir_wali: "",
+  pekerjaan_utama_wali: "",
+  nomor_hp_wali: "",
+
+  status_rumah: "",
+  provinsi: "",
+  kabupaten_kota: "",
+  kecamatan: "",
+  kelurahan_desa: "",
+  rt: "",
+  rw: "",
+  alamat_lengkap: "",
+  kode_pos: "",
 };

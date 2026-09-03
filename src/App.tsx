@@ -12,10 +12,10 @@ type NamaHalaman = "daftar" | "tambah" | "edit" | "laporan" | "backup";
 
 function App() {
   const [halaman, setHalaman]           = useState<NamaHalaman>("laporan");
-  const [santriIdEdit, setSantriIdEdit] = useState<number | null>(null);
+  const [santriIdEdit, setSantriIdEdit] = useState<string | null>(null);
 
-  function keEdit(id: number) {
-    setSantriIdEdit(id);
+  function keEdit(nis: string) {
+    setSantriIdEdit(nis);
     setHalaman("edit");
   }
 
