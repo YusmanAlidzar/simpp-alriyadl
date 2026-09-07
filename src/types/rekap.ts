@@ -18,11 +18,21 @@ export interface RekapKelas {
   perempuan: number;
 }
 
-/** Rekap keseluruhan: total + breakdown per status & kelas */
+/** Rekap per atribut umum (Kobong / Tingkat Sekolah) */
+export interface RekapAtribut {
+  label: string | null;
+  total: number;
+  laki: number;
+  perempuan: number;
+}
+
+/** Rekap keseluruhan: total + breakdown per status, kelas, kobong, tingkat sekolah */
 export interface RekapSantri {
   totalSemua: number;
   totalLaki: number;
   totalPerempuan: number;
   perStatus: RekapStatus[];
   perKelas: RekapKelas[];
+  perKobong: RekapAtribut[];
+  perTingkatSekolah: RekapAtribut[];
 }

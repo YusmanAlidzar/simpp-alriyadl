@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { join } from "@tauri-apps/api/path";
 import type { Santri } from "../types/santri";
 import type { Kelas } from "../types/kelas";
-import { getAllSantri, getAllKelas, hapusSantri, getFotoDirPath, fotoKeDataUrl } from "../lib/db";
+import { getAllSantri, getAllKelas, hapusSantri, getFotoDirPath, fotoKeDataUrl, getUnikKobong } from "../lib/db";
 import Modal from "../components/Modal";
 import { LuSearch } from "react-icons/lu";
 
@@ -14,19 +14,22 @@ interface DaftarSantriProps {
 
 // Warna badge untuk setiap status santri
 const STATUS_STYLE: Record<string, string> = {
-  aktif: "bg-green-100 text-green-700",
+  aktif: "bg-pesantren-100 text-pesantren-800",
   lulus: "bg-blue-100 text-blue-700",
   keluar: "bg-red-100 text-red-700",
-  nonaktif: "bg-gray-100 text-gray-500",
+  nonaktif: "bg-slate-100 text-slate-500",
 };
 
 export default function DaftarSantri({ onTambah, onEdit }: DaftarSantriProps) {
   const [listSantri, setListSantri] = useState<Santri[]>([]);
   const [listKelas, setListKelas] = useState<Kelas[]>([]);
+  const [listKobong, setListKobong] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [cari, setCari] = useState("");
   const [filterKelas, setFilterKelas] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
+  const [filterKobong, setFilterKobong] = useState("");
+  const [filterJK, setFilterJK] = useState("");
 
   // State untuk modal konfirmasi hapus
   const [modalHapus, setModalHapus] = useState<{
@@ -35,15 +38,16 @@ export default function DaftarSantri({ onTambah, onEdit }: DaftarSantriProps) {
     namaSantri: string;
   }>({ terbuka: false, nis: null, namaSantri: "" });
 
-  // Load daftar kelas sekali saat komponen pertama kali muncul
+  // Load daftar kelas dan kobong sekali saat komponen pertama kali muncul
   useEffect(() => {
     getAllKelas().then(setListKelas).catch(console.error);
+    getUnikKobong().then(setListKobong).catch(console.error);
   }, []);
 
   // Reload daftar santri setiap kali filter berubah
   useEffect(() => {
     muatSantri();
-  }, [cari, filterKelas, filterStatus]);
+  }, [cari, filterKelas, filterStatus, filterKobong, filterJK]);
 
   async function muatSantri() {
     setLoading(true);
@@ -52,6 +56,8 @@ export default function DaftarSantri({ onTambah, onEdit }: DaftarSantriProps) {
         cari: cari || undefined,
         kelasId: filterKelas ? parseInt(filterKelas) : null,
         status: filterStatus || null,
+        kobong: filterKobong || null,
+        jenisKelamin: filterJK || null,
       });
       setListSantri(hasil);
     } catch (err) {
@@ -73,22 +79,22 @@ export default function DaftarSantri({ onTambah, onEdit }: DaftarSantriProps) {
     }
   }
 
-  const adaFilter = !!(cari || filterKelas || filterStatus);
+  const adaFilter = !!(cari || filterKelas || filterStatus || filterKobong || filterJK);
 
   return (
-    <div className="p-6">
+    <div className="p-6 dark:bg-slate-950 min-h-full transition-colors">
 
       {/* ── Header ── */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-2xl font-bold text-gray-800">Daftar Santri</h2>
-          <p className="text-sm text-gray-500 mt-0.5">
+          <h2 className="text-2xl font-bold text-pesantren-900 dark:text-pesantren-200">Daftar Santri</h2>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
             {loading ? "Memuat..." : `${listSantri.length} santri ditemukan`}
           </p>
         </div>
         <button
           onClick={onTambah}
-          className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg transition-colors shadow-sm"
+          className="px-4 py-2 bg-pesantren-700 hover:bg-pesantren-800 text-white text-sm font-semibold rounded-lg transition-colors shadow-sm"
         >
           + Tambah Santri
         </button>
@@ -98,20 +104,20 @@ export default function DaftarSantri({ onTambah, onEdit }: DaftarSantriProps) {
       <div className="flex gap-3 mb-4 flex-wrap">
         <div className="relative flex-1 min-w-[200px]">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <LuSearch className="text-gray-400" />
+            <LuSearch className="text-slate-400" />
           </div>
           <input
             type="text"
             placeholder="Cari nama atau NIS..."
             value={cari}
             onChange={(e) => setCari(e.target.value)}
-            className="w-full border border-gray-300 rounded-lg pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
+            className="w-full border border-slate-300 dark:border-slate-600 rounded-lg pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pesantren-500 bg-white dark:bg-slate-800 dark:text-slate-200"
           />
         </div>
         <select
           value={filterKelas}
           onChange={(e) => setFilterKelas(e.target.value)}
-          className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
+          className="border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pesantren-500 bg-white"
         >
           <option value="">Semua Kelas</option>
           {listKelas.map((k) => (
@@ -119,9 +125,28 @@ export default function DaftarSantri({ onTambah, onEdit }: DaftarSantriProps) {
           ))}
         </select>
         <select
+          value={filterKobong}
+          onChange={(e) => setFilterKobong(e.target.value)}
+          className="border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pesantren-500 bg-white"
+        >
+          <option value="">Semua Kobong</option>
+          {listKobong.map((kb) => (
+            <option key={kb} value={kb}>{kb}</option>
+          ))}
+        </select>
+        <select
+          value={filterJK}
+          onChange={(e) => setFilterJK(e.target.value)}
+          className="border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pesantren-500 bg-white"
+        >
+          <option value="">L/P</option>
+          <option value="L">Putra (L)</option>
+          <option value="P">Putri (P)</option>
+        </select>
+        <select
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}
-          className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
+          className="border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pesantren-500 bg-white"
         >
           <option value="">Semua Status</option>
           <option value="aktif">Aktif</option>
@@ -132,8 +157,8 @@ export default function DaftarSantri({ onTambah, onEdit }: DaftarSantriProps) {
         {/* Tombol reset filter — muncul hanya kalau ada filter aktif */}
         {adaFilter && (
           <button
-            onClick={() => { setCari(""); setFilterKelas(""); setFilterStatus(""); }}
-            className="px-3 py-2 text-sm text-gray-500 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
+            onClick={() => { setCari(""); setFilterKelas(""); setFilterStatus(""); setFilterKobong(""); setFilterJK(""); }}
+            className="px-3 py-2 text-sm text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors"
           >
             ✕ Reset
           </button>
@@ -141,11 +166,11 @@ export default function DaftarSantri({ onTambah, onEdit }: DaftarSantriProps) {
       </div>
 
       {/* ── Tabel data ── */}
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm">
         {loading ? (
-          <div className="py-20 text-center text-gray-400 text-sm">Memuat data...</div>
+          <div className="py-20 text-center text-slate-400 text-sm">Memuat data...</div>
         ) : listSantri.length === 0 ? (
-          <div className="py-20 text-center text-gray-400 text-sm">
+          <div className="py-20 text-center text-slate-400 text-sm">
             {adaFilter
               ? "Tidak ada santri yang cocok dengan filter."
               : 'Belum ada data santri. Klik "+ Tambah Santri" untuk mulai.'}
@@ -153,12 +178,14 @@ export default function DaftarSantri({ onTambah, onEdit }: DaftarSantriProps) {
         ) : (
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-gray-50 border-b border-gray-200 text-gray-600">
+              <tr className="bg-pesantren-950/5 dark:bg-slate-700 border-b border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300">
                 <th className="text-left px-4 py-3 font-semibold w-12">No</th>
                 <th className="px-3 py-3 w-12"></th>
                 <th className="text-left px-4 py-3 font-semibold">NIS</th>
                 <th className="text-left px-4 py-3 font-semibold">Nama Lengkap</th>
+                <th className="text-center px-4 py-3 font-semibold">L/P</th>
                 <th className="text-left px-4 py-3 font-semibold">Kelas</th>
+                <th className="text-left px-4 py-3 font-semibold">Kobong</th>
                 <th className="text-left px-4 py-3 font-semibold">Status</th>
                 <th className="text-left px-4 py-3 font-semibold">Aksi</th>
               </tr>
@@ -167,22 +194,26 @@ export default function DaftarSantri({ onTambah, onEdit }: DaftarSantriProps) {
               {listSantri.map((s, i) => (
                 <tr
                   key={s.nis}
-                  className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                  className="border-b border-slate-100 dark:border-slate-700 hover:bg-pesantren-50 dark:hover:bg-slate-700 transition-colors"
                 >
-                  <td className="px-4 py-3 text-gray-400">{i + 1}</td>
+                  <td className="px-4 py-3 text-slate-400 dark:text-slate-500">{i + 1}</td>
                   <td className="px-3 py-2">
                     <FotoAvatar santri={s} />
                   </td>
-                  <td className="px-4 py-3 text-gray-500 font-mono text-xs">
-                    {s.nis ?? <span className="text-gray-300">-</span>}
+                  <td className="px-4 py-3 text-slate-500 dark:text-slate-400 font-mono text-xs">
+                    {s.nis ?? <span className="text-slate-300">-</span>}
                   </td>
-                  <td className="px-4 py-3 font-medium text-gray-800">{s.nama_santri}</td>
-                  <td className="px-4 py-3 text-gray-500">
-                    {s.nama_kelas ?? <span className="text-gray-300">-</span>}
+                  <td className="px-4 py-3 font-medium text-slate-800 dark:text-slate-200">{s.nama_santri}</td>
+                  <td className="px-4 py-3 text-slate-500 dark:text-slate-400 text-center">{s.jenis_kelamin ?? "-"}</td>
+                  <td className="px-4 py-3 text-slate-500 dark:text-slate-400">
+                    {s.nama_kelas ?? <span className="text-slate-300">-</span>}
+                  </td>
+                  <td className="px-4 py-3 text-slate-500 dark:text-slate-400">
+                    {s.kobong ?? <span className="text-slate-300">-</span>}
                   </td>
                   <td className="px-4 py-3">
                     <span
-                      className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-medium ${STATUS_STYLE[s.status] ?? "bg-gray-100 text-gray-500"
+                      className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-medium ${STATUS_STYLE[s.status] ?? "bg-slate-100 text-slate-500"
                         }`}
                     >
                       {s.status}
@@ -192,7 +223,7 @@ export default function DaftarSantri({ onTambah, onEdit }: DaftarSantriProps) {
                     <div className="flex gap-1">
                       <button
                         onClick={() => onEdit(s.nis)}
-                        className="px-3 py-1 text-xs font-medium text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                        className="px-3 py-1 text-xs font-medium text-pesantren-700 hover:bg-pesantren-50 rounded-md transition-colors"
                       >
                         Edit
                       </button>
@@ -253,11 +284,11 @@ function FotoAvatar({ santri }: { santri: Santri }) {
     .join("");
 
   return (
-    <div className="w-9 h-9 rounded-full overflow-hidden border border-gray-200 flex-shrink-0 bg-gray-100 flex items-center justify-center">
+    <div className="w-9 h-9 rounded-full overflow-hidden border border-slate-200 flex-shrink-0 bg-slate-100 flex items-center justify-center">
       {src ? (
         <img src={src} alt="" className="w-full h-full object-cover" />
       ) : (
-        <span className="text-xs font-semibold text-gray-400">{inisial}</span>
+        <span className="text-xs font-semibold text-slate-400">{inisial}</span>
       )}
     </div>
   );

@@ -16,6 +16,8 @@
     height: auto !important;
     overflow: visible !important;
     background: white !important;
+    zoom: 0.75;
+    /* Scale print default menjadi 75% */
   }
 
   /* Sembunyikan sidebar navigasi */
@@ -34,4 +36,15 @@
 
   /* Ukuran margin halaman cetak */
   @page { margin: 1.5cm; }
+}
+/* -- Transisi halus dark/light mode -- */
+* {
+  transition-property: background-color, border-color, color;
+  transition-duration: 200ms;
+  transition-timing-function: ease;
+}
+
+/* Khusus input & select dark mode (tidak bisa via Tailwind saja karena select OS-style) */
+.dark input, .dark select, .dark textarea {
+  color-scheme: dark;
 }

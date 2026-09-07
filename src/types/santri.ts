@@ -10,6 +10,7 @@ export interface Santri {
   kelas_id: number | null;
   foto_santri: string | null;
   status: "aktif" | "lulus" | "keluar" | "nonaktif";
+  kobong: string | null;
   
   // Dari JOIN dengan tabel lain
   nama_kelas: string | null;

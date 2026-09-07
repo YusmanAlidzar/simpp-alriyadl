@@ -36,3 +36,7 @@ AGENTS.md
 *.db-wal
 *.sqlite
 *.sqlite3
+
+# Temporary & Scratch files
+scratch/
+.tempmediaStorage/

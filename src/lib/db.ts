@@ -12,7 +12,7 @@ import { appDataDir, join } from "@tauri-apps/api/path";
 import { mkdir, readFile, copyFile, readDir, remove } from "@tauri-apps/plugin-fs";
 import type { Santri, SantriForm } from "../types/santri";
 import type { Kelas } from "../types/kelas";
-import type { RekapSantri, RekapStatus, RekapKelas } from "../types/rekap";
+import type { RekapSantri, RekapStatus, RekapKelas, RekapAtribut } from "../types/rekap";
 
 // Instance database — null sebelum initDatabase() dipanggil
 let db: Database | null = null;
@@ -278,12 +278,38 @@ export async function getRekapSantri(): Promise<RekapSantri> {
     ORDER BY k.id
   `);
 
+  const perKobong = await database.select<RekapAtribut[]>(`
+    SELECT
+      COALESCE(ds.kobong, '-') AS label,
+      COUNT(ds.nis) AS total,
+      SUM(CASE WHEN di.jenis_kelamin = 'L' THEN 1 ELSE 0 END) AS laki,
+      SUM(CASE WHEN di.jenis_kelamin = 'P' THEN 1 ELSE 0 END) AS perempuan
+    FROM daftar_santri ds
+    JOIN data_input_santri di ON ds.nik_santri = di.nik_santri
+    GROUP BY ds.kobong
+    ORDER BY ds.kobong ASC
+  `);
+
+  const perTingkatSekolah = await database.select<RekapAtribut[]>(`
+    SELECT
+      COALESCE(di.tingkat_sekolah, '-') AS label,
+      COUNT(ds.nis) AS total,
+      SUM(CASE WHEN di.jenis_kelamin = 'L' THEN 1 ELSE 0 END) AS laki,
+      SUM(CASE WHEN di.jenis_kelamin = 'P' THEN 1 ELSE 0 END) AS perempuan
+    FROM daftar_santri ds
+    JOIN data_input_santri di ON ds.nik_santri = di.nik_santri
+    GROUP BY di.tingkat_sekolah
+    ORDER BY di.tingkat_sekolah ASC
+  `);
+
   return {
     totalSemua: totalRow?.total ?? 0,
     totalLaki: totalRow?.laki ?? 0,
     totalPerempuan: totalRow?.perempuan ?? 0,
     perStatus,
     perKelas,
+    perKobong,
+    perTingkatSekolah,
   };
 }
 
@@ -295,6 +321,8 @@ export async function getAllSantri(filter?: {
   cari?: string;
   kelasId?: number | null;
   status?: string | null;
+  kobong?: string | null;
+  jenisKelamin?: string | null;
 }): Promise<Santri[]> {
   let query = `
     SELECT 
@@ -308,6 +336,7 @@ export async function getAllSantri(filter?: {
       ds.kelas_id, 
       di.foto_santri, 
       ds.status, 
+      ds.kobong,
       k.nama_kelas, 
       a.nama_ayah, 
       i.nama_ibu, 
@@ -339,9 +368,30 @@ export async function getAllSantri(filter?: {
     params.push(filter.status);
   }
 
+  if (filter?.kobong) {
+    query += ` AND ds.kobong = ?`;
+    params.push(filter.kobong);
+  }
+
+  if (filter?.jenisKelamin) {
+    query += ` AND di.jenis_kelamin = ?`;
+    params.push(filter.jenisKelamin);
+  }
+
   query += ` ORDER BY di.nama_santri ASC`;
 
   return await getDb().select<Santri[]>(query, params);
+}
+
+export async function getUnikKobong(): Promise<string[]> {
+  const query = `
+    SELECT DISTINCT kobong 
+    FROM daftar_santri 
+    WHERE kobong IS NOT NULL AND kobong != ''
+    ORDER BY kobong ASC
+  `;
+  const result = await getDb().select<{ kobong: string }[]>(query);
+  return result.map((r) => r.kobong);
 }
 
 export async function getSantriById(nis: string): Promise<SantriForm | null> {
