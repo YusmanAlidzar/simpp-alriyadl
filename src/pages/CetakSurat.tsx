@@ -65,12 +65,12 @@ export default function CetakSurat() {
   }
 
   function pilihJenisSurat(id: JenisSurat) {
-    setJenisSurat(id);
+    // setJenisSurat(id);
     setTahap("preview");
   }
 
   function kembali() {
-    if (tahap === "preview") { setTahap("pilih_surat"); setJenisSurat(null); }
+    if (tahap === "preview") { setTahap("pilih_surat"); // setJenisSurat(null); }
     else if (tahap === "pilih_surat") { setTahap("pilih_santri"); setSantriTerpilih(null); setDetailSantri(null); setNomorSurat(""); }
   }
 
