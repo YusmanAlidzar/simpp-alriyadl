@@ -43,7 +43,7 @@ export default function FormSantri({ santriId, onSelesai, onBatal }: FormSantriP
   const [sukses, setSukses] = useState<string | null>(null);
 
   const [fotoAbsolut, setFotoAbsolut] = useState<string | null>(null);
-  const [uploadFoto, setUploadFoto] = useState(false);
+  // const [uploadFoto, setUploadFoto] = useState(false);
   const [tingkatTerpilih, setTingkatTerpilih] = useState<string>("");
 
   const modeEdit = santriId !== null;

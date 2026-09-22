@@ -41,7 +41,7 @@ export default function CetakSurat() {
   const [loading, setLoading] = useState(true);
   const [santriTerpilih, setSantriTerpilih] = useState<Santri | null>(null);
   const [detailSantri, setDetailSantri] = useState<SantriForm | null>(null);
-  const [jenisSurat, setJenisSurat] = useState<JenisSurat | null>(null);
+  // const [jenisSurat, setJenisSurat] = useState<JenisSurat | null>(null);
   const [nomorSurat, setNomorSurat] = useState("");
 
   useEffect(() => {
