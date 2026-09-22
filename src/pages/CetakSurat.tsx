@@ -64,7 +64,7 @@ export default function CetakSurat() {
     setTahap("pilih_surat");
   }
 
-  function pilihJenisSurat(id: JenisSurat) {
+  function pilihJenisSurat(_id: JenisSurat) {
     // setJenisSurat(id);
     setTahap("preview");
   }
