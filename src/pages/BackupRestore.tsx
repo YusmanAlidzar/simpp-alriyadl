@@ -33,8 +33,8 @@ export default function BackupRestore({ onSelesaiRestore }: BackupRestoreProps) 
   async function handleBuatBackup() {
     setLoadingAction(true);
     try {
-      const namaFile = await buatBackup();
-      await message(`Backup berhasil dibuat: ${namaFile}`, { title: "Berhasil", kind: "info" });
+      const namaFolder = await buatBackup();
+      await message(`Backup berhasil dibuat: ${namaFolder}`, { title: "Berhasil", kind: "info" });
       loadDaftar();
     } catch (err) {
       console.error(err);
@@ -44,8 +44,8 @@ export default function BackupRestore({ onSelesaiRestore }: BackupRestoreProps) 
     }
   }
 
-  async function handleHapus(namaFile: string) {
-    const y = await confirm(`Apakah Anda yakin ingin menghapus backup "${namaFile}"?`, {
+  async function handleHapus(namaFolder: string) {
+    const y = await confirm(`Apakah Anda yakin ingin menghapus backup "${namaFolder}"?`, {
       title: "Konfirmasi Hapus",
       kind: "warning",
     });
@@ -53,7 +53,7 @@ export default function BackupRestore({ onSelesaiRestore }: BackupRestoreProps) 
 
     setLoadingAction(true);
     try {
-      await hapusBackup(namaFile);
+      await hapusBackup(namaFolder);
       loadDaftar();
     } catch (err) {
       console.error(err);
@@ -63,9 +63,9 @@ export default function BackupRestore({ onSelesaiRestore }: BackupRestoreProps) 
     }
   }
 
-  async function handleRestore(namaFile: string) {
+  async function handleRestore(namaFolder: string) {
     const y = await confirm(
-      `PERINGATAN: Data saat ini akan DITIMPA dengan data dari file backup "${namaFile}".\n\nLanjutkan?`,
+      `PERINGATAN: Data saat ini akan DITIMPA dengan data dari folder backup "${namaFolder}".\n\nLanjutkan?`,
       {
         title: "Konfirmasi Restore",
         kind: "warning",
@@ -75,8 +75,8 @@ export default function BackupRestore({ onSelesaiRestore }: BackupRestoreProps) 
 
     setLoadingAction(true);
     try {
-      await restoreBackup(namaFile);
-      await message("Restore berhasil. Database telah diperbarui.", { title: "Berhasil", kind: "info" });
+      await restoreBackup(namaFolder);
+      await message("Restore berhasil. Database dan foto telah diperbarui.", { title: "Berhasil", kind: "info" });
       onSelesaiRestore(); // Kembali ke daftar santri atau reload state
     } catch (err) {
       console.error(err);
@@ -98,7 +98,7 @@ export default function BackupRestore({ onSelesaiRestore }: BackupRestoreProps) 
         <div>
           <h3 className="text-lg font-bold text-pesantren-900 dark:text-pesantren-300">Buat Backup Baru</h3>
           <p className="text-sm text-slate-500 mt-1 max-w-lg">
-            Semua data santri dan kelas saat ini akan disimpan dalam satu file aman. Lakukan backup secara berkala untuk menghindari kehilangan data.
+            Semua data santri, foto profil, dan kelas saat ini akan disimpan dalam satu folder aman. Lakukan backup secara berkala untuk menghindari kehilangan data.
           </p>
         </div>
         <button
@@ -112,39 +112,39 @@ export default function BackupRestore({ onSelesaiRestore }: BackupRestoreProps) 
       </div>
 
       <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
-        <div className="px-6 py-4 border-b border-slate-200" style={{ background: 'linear-gradient(90deg, #F0FDF6 0%, #DCFCE9 100%)' }}>
-          <h3 className="text-lg font-bold text-pesantren-800 dark:text-pesantren-300">Daftar File Backup</h3>
+        <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-pesantren-50 dark:bg-slate-700">
+          <h3 className="text-lg font-bold text-pesantren-900 dark:text-pesantren-100">Daftar Folder Backup</h3>
         </div>
 
         {loading ? (
           <div className="p-8 text-center text-slate-500">Memuat daftar...</div>
         ) : listBackup.length === 0 ? (
           <div className="p-12 text-center text-slate-400">
-            Belum ada file backup yang dibuat.
+            Belum ada folder backup yang dibuat.
           </div>
         ) : (
           <ul className="divide-y divide-slate-100 dark:divide-slate-700">
-            {listBackup.map((file) => (
-              <li key={file} className="p-4 px-6 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+            {listBackup.map((folder) => (
+              <li key={folder} className="p-4 px-6 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-pesantren-100 flex items-center justify-center">
                     <FaArchive size={18} className="text-pesantren-700" />
                   </div>
                   <div>
-                    <p className="font-semibold text-slate-200 dark:text-slate-200 font-mono text-sm">{file}</p>
+                    <p className="font-semibold text-slate-700 dark:text-slate-200 font-mono text-sm">{folder}</p>
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Disimpan di .../AppData/backups/</p>
                   </div>
                 </div>
                 <div className="flex gap-2">
                   <button
-                    onClick={() => handleRestore(file)}
+                    onClick={() => handleRestore(folder)}
                     disabled={loadingAction}
                     className="px-4 py-1.5 text-sm font-medium text-white bg-pesantren-700 hover:bg-pesantren-800 disabled:bg-slate-300 rounded-md transition-colors"
                   >
                     <FaSync size={10} className="inline mr-1" /> Restore
                   </button>
                   <button
-                    onClick={() => handleHapus(file)}
+                    onClick={() => handleHapus(folder)}
                     disabled={loadingAction}
                     className="px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50 disabled:text-slate-400 rounded-md transition-colors"
                     title="Hapus backup ini"

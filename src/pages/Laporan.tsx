@@ -29,9 +29,7 @@ export default function Laporan() {
   const [loading, setLoading] = useState(true);
 
   // Format tanggal cetak: "26 Agustus 2026"
-  const tanggalCetak = new Date().toLocaleDateString("id-ID", {
-    day: "numeric", month: "long", year: "numeric",
-  });
+  const tanggalCetak = new Date().toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }); 
 
   // Load rekap & kelas saat pertama kali halaman dibuka
   useEffect(() => {
@@ -145,7 +143,7 @@ function TabRekap({ rekap }: { rekap: RekapSantri }) {
                 </p>
                 <p className="text-3xl font-bold text-slate-800 mt-1">{s.total}</p>
                 <p className="text-xs text-slate-500 mt-1">
-                  L: {s.laki} &nbsp;|&nbsp; P: {s.perempuan}
+                  Putra (L): {s.laki} &nbsp;|&nbsp; Putri (P): {s.perempuan}
                 </p>
               </div>
             );
@@ -291,6 +289,8 @@ function TabDaftar({
   tanggalCetak,
 }: TabDaftarProps) {
 
+  function handleCetak() { const originalTitle = document.title; document.title = "Hasil Cetak Daftar Santri (SIMPP Al-Riyadl) - " + tanggalCetak; window.print(); setTimeout(() => { document.title = originalTitle; }, 1000); }
+
   // Label filter untuk header cetak
   const labelKelas = listKelas.find((k) => k.id.toString() === filterKelas)?.nama_kelas ?? "Semua Kelas";
   const labelStatus = filterStatus
@@ -348,7 +348,7 @@ function TabDaftar({
         <span className="text-sm text-slate-500">{listSantri.length} santri</span>
 
         <button
-          onClick={() => window.print()}
+          onClick={handleCetak}
           className="ml-auto px-5 py-2 bg-pesantren-700 hover:bg-pesantren-800 text-white text-sm font-semibold rounded-lg transition-colors shadow-sm"
         >
           <LuPrinter className="inline-block mr-1.5 mb-0.5 text-base" />

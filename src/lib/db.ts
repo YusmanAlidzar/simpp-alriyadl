@@ -628,8 +628,26 @@ export async function hapusSantri(nis: string): Promise<void> {
     const res = await database.select<any[]>(`SELECT nik_santri FROM daftar_santri WHERE nis = ?`, [nis]);
     if (res.length > 0) {
       const nikSantri = res[0].nik_santri;
+
+      // Cek apakah ada foto santri yang harus dihapus fisiknya
+      const resFoto = await database.select<any[]>(`SELECT foto_santri FROM data_input_santri WHERE nik_santri = ?`, [nikSantri]);
+      const fotoSantri = resFoto.length > 0 ? resFoto[0].foto_santri : null;
+
       await database.execute(`DELETE FROM daftar_santri WHERE nis = ?`, [nis]);
       await database.execute(`DELETE FROM data_input_santri WHERE nik_santri = ?`, [nikSantri]);
+
+      // Eksekusi penghapusan file lokal jika ada
+      if (fotoSantri) {
+        try {
+          const { remove } = await import('@tauri-apps/plugin-fs');
+          const { join } = await import('@tauri-apps/api/path');
+          const dir = await getFotoDirPath();
+          const oldPath = await join(dir, fotoSantri);
+          await remove(oldPath);
+        } catch (e) {
+          console.warn("Gagal menghapus fisik foto saat hapus santri:", e);
+        }
+      }
     }
   } catch (e) {
     console.error("Query Error (Hapus): ", e);
@@ -688,44 +706,73 @@ export async function buatBackup(): Promise<string> {
   const dataDir = await appDataDir();
   const dbAktif = await join(dataDir, "pendataan_santri.db");
   const backupDir = await getBackupDirPath();
+  const photoDir = await getFotoDirPath();
 
   const now = new Date();
   const pad = (n: number) => n.toString().padStart(2, "0");
   const timestamp = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}_${pad(now.getHours())}-${pad(now.getMinutes())}`;
 
-  const namaFile = `backup_${timestamp}.db`;
-  const pathTujuan = await join(backupDir, namaFile);
+  const namaFolder = `backup_${timestamp}`;
+  const pathTujuanFolder = await join(backupDir, namaFolder);
 
-  await copyFile(dbAktif, pathTujuan);
-  return namaFile;
+  // Buat folder backup utama
+  await mkdir(pathTujuanFolder, { recursive: true });
+
+  // Copy file .db ke dalam folder backup
+  const dbTujuan = await join(pathTujuanFolder, "pendataan_santri.db");
+  await copyFile(dbAktif, dbTujuan);
+
+  // Buat folder photos di dalam backup
+  const pathTujuanPhotos = await join(pathTujuanFolder, "photos");
+  await mkdir(pathTujuanPhotos, { recursive: true });
+
+  // Copy semua foto
+  try {
+    const fotoFiles = await readDir(photoDir);
+    for (const file of fotoFiles) {
+      if (file.isFile) {
+        const fileAsal = await join(photoDir, file.name);
+        const fileTujuan = await join(pathTujuanPhotos, file.name);
+        await copyFile(fileAsal, fileTujuan);
+      }
+    }
+  } catch (e) {
+    console.warn("Gagal menyalin folder photos:", e);
+  }
+
+  return namaFolder;
 }
 
 export async function getDaftarBackup(): Promise<string[]> {
   const backupDir = await getBackupDirPath();
   try {
     const entries = await readDir(backupDir);
-    const files = entries
-      .filter((e) => e.isFile && e.name.endsWith(".db"))
+    const folders = entries
+      .filter((e) => e.isDirectory && e.name.startsWith("backup_"))
       .map((e) => e.name)
       .sort((a, b) => b.localeCompare(a));
-    return files;
+    return folders;
   } catch (error) {
     console.error("Gagal membaca daftar backup:", error);
     return [];
   }
 }
 
-export async function hapusBackup(namaFile: string): Promise<void> {
+export async function hapusBackup(namaFolder: string): Promise<void> {
   const backupDir = await getBackupDirPath();
-  const pathTarget = await join(backupDir, namaFile);
-  await remove(pathTarget);
+  const pathTarget = await join(backupDir, namaFolder);
+  await remove(pathTarget, { recursive: true });
 }
 
-export async function restoreBackup(namaFile: string): Promise<void> {
+export async function restoreBackup(namaFolder: string): Promise<void> {
   const dataDir = await appDataDir();
   const dbAktif = await join(dataDir, "pendataan_santri.db");
+  const photoDir = await getFotoDirPath();
+
   const backupDir = await getBackupDirPath();
-  const pathAsal = await join(backupDir, namaFile);
+  const pathAsalFolder = await join(backupDir, namaFolder);
+  const dbAsal = await join(pathAsalFolder, "pendataan_santri.db");
+  const photosAsal = await join(pathAsalFolder, "photos");
 
   if (db) {
     try {
@@ -741,6 +788,63 @@ export async function restoreBackup(namaFile: string): Promise<void> {
   try { await remove(walPath); } catch (e) { }
   try { await remove(shmPath); } catch (e) { }
 
-  await copyFile(pathAsal, dbAktif);
+  // 1. Restore DB
+  await copyFile(dbAsal, dbAktif);
+
+  // 2. Clear current photos
+  try {
+    const currentPhotos = await readDir(photoDir);
+    for (const file of currentPhotos) {
+      if (file.isFile) {
+        const fileHapus = await join(photoDir, file.name);
+        await remove(fileHapus);
+      }
+    }
+  } catch (e) {
+    console.warn("Gagal membersihkan foto lama:", e);
+  }
+
+  // 3. Restore backed up photos
+  try {
+    const backupPhotos = await readDir(photosAsal);
+    for (const file of backupPhotos) {
+      if (file.isFile) {
+        const fileAsal = await join(photosAsal, file.name);
+        const fileTujuan = await join(photoDir, file.name);
+        await copyFile(fileAsal, fileTujuan);
+      }
+    }
+  } catch (e) {
+    console.warn("Gagal restore foto:", e);
+  }
+
   await initDatabase();
+}
+
+
+export async function simpanSantriMassal(dataList: SantriForm[]): Promise<void> {
+  const database = getDb();
+  
+  try {
+    for (const data of dataList) {
+      // Cek apakah santri sudah ada berdasarkan NIS atau NIK
+      const existingByNis = await database.select<any[]>("SELECT * FROM daftar_santri WHERE nis = ?", [data.nis]);
+      const existingByNik = await database.select<any[]>("SELECT * FROM data_input_santri WHERE nik_santri = ?", [data.nik_santri]);
+      
+      if (existingByNis.length > 0 || existingByNik.length > 0) {
+        // Jika exist (baik NIS atau NIK match), lakukan UPDATE (menggunakan editSantri logic)
+        // Kita gunakan nis yang ada di database atau nis dari Excel
+        const nisToUpdate = existingByNis.length > 0 ? existingByNis[0].nis : data.nis;
+        // Panggil fungsi editSantri
+        await editSantri(nisToUpdate, data);
+      } else {
+        // Jika tidak exist, lakukan INSERT (menggunakan tambahSantri logic)
+        await tambahSantri(data);
+      }
+    }
+    
+  } catch (error) {
+    
+    throw error;
+  }
 }

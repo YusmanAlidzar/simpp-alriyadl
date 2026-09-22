@@ -27,9 +27,6 @@ dist-ssr
 src-tauri/target/
 src-tauri/gen/
 
-# Agents
-AGENTS.md
-
 # Database & Local Testing
 *.db
 *.db-shm
@@ -40,3 +37,6 @@ AGENTS.md
 # Temporary & Scratch files
 scratch/
 .tempmediaStorage/
+
+# Documents
+docs/

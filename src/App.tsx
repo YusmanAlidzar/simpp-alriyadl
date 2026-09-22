@@ -1,4 +1,4 @@
-// App.tsx — Shell utama: mengatur navigasi antar halaman via state
+﻿// App.tsx â€” Shell utama: mengatur navigasi antar halaman via state
 // Tidak pakai React Router karena ini desktop app dengan halaman yang sedikit.
 import { useState } from "react";
 import Layout from "./components/Layout";
@@ -6,9 +6,10 @@ import DaftarSantri from "./pages/DaftarSantri";
 import FormSantri from "./pages/FormSantri";
 import Laporan from "./pages/Laporan";
 import BackupRestore from "./pages/BackupRestore";
+import CetakSurat from "./pages/CetakSurat";
 
 // Nama-nama halaman yang bisa aktif
-type NamaHalaman = "daftar" | "tambah" | "edit" | "laporan" | "backup";
+type NamaHalaman = "daftar" | "tambah" | "edit" | "laporan" | "backup" | "surat";
 
 function App() {
   const [halaman, setHalaman]           = useState<NamaHalaman>("laporan");
@@ -29,6 +30,7 @@ function App() {
     if (h === "tambah")  { setSantriIdEdit(null); setHalaman("tambah"); }
     if (h === "laporan") setHalaman("laporan");
     if (h === "backup")  setHalaman("backup");
+    if (h === "surat")   setHalaman("surat");
   }
 
   return (
@@ -45,9 +47,11 @@ function App() {
       )}
       {halaman === "laporan" && <Laporan />}
       {halaman === "backup" && <BackupRestore onSelesaiRestore={keDaftar} />}
+      {halaman === "surat" && <CetakSurat />}
     </Layout>
   );
 }
 
 export default App;
+
 

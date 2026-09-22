@@ -1,6 +1,6 @@
-// Layout.tsx — Shell utama aplikasi: sidebar navigasi + area konten
+﻿// Layout.tsx â€” Shell utama aplikasi: sidebar navigasi + area konten
 import React, { useEffect, useState } from "react";
-import { FaHome, FaUser, FaUserPlus, FaHistory, FaSync, FaSun, FaMoon } from 'react-icons/fa';
+import { FaHome, FaUser, FaUserPlus, FaHistory, FaSync, FaSun, FaMoon, FaFileAlt } from 'react-icons/fa';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -9,15 +9,15 @@ interface LayoutProps {
 }
 
 export default function Layout({ children, halamanAktif, onNavigasi }: LayoutProps) {
-  // ── Dark mode state ──
+  // â”€â”€ Dark mode state â”€â”€
   // Default: light mode. Pakai localStorage untuk persistensi pilihan user.
   // TIDAK pakai window.matchMedia (OS preference) karena WebView2/Tauri bisa
-  // mengembalikan 'dark' permanen → menyebabkan mode terkunci.
+  // mengembalikan 'dark' permanen â†’ menyebabkan mode terkunci.
   // Key: 'simpp-ui-theme' (berbeda dari versi lama 'simpp-theme' yang mungkin
-  // menyimpan nilai 'dark' akibat deteksi OS — ini mereset state secara bersih).
+  // menyimpan nilai 'dark' akibat deteksi OS â€” ini mereset state secara bersih).
   const [isDark, setIsDark] = useState<boolean>(() => {
     const saved = localStorage.getItem('simpp-ui-theme');
-    return saved === 'dark'; // Jika key tidak ada → false (light)
+    return saved === 'dark'; // Jika key tidak ada â†’ false (light)
   });
 
   // Sinkronkan class "dark" di <html> setiap kali isDark berubah
@@ -59,18 +59,19 @@ export default function Layout({ children, halamanAktif, onNavigasi }: LayoutPro
   return (
     <div className="flex h-screen overflow-hidden bg-slate-100 dark:bg-slate-950 print:block print:h-auto print:overflow-visible print:bg-white transition-colors duration-200">
 
-      {/* ── Sidebar kiri ── */}
+      {/* â”€â”€ Sidebar kiri â”€â”€ */}
       <aside className="w-60 flex flex-col flex-shrink-0 select-none print:hidden"
         style={{ background: 'linear-gradient(180deg, #0A4F2C 0%, #0D6B3A 60%, #1A7A3B 100%)' }}>
 
         {/* Header sidebar: logo & nama app */}
         <div className="px-5 py-5 border-b border-pesantren-900/60">
-          {/* Aksen emas atas */}
-          <div className="flex items-center gap-2 mb-3">
-            <div className="w-1 h-8 rounded-full" style={{ background: '#F0C030' }}></div>
+          {/* Aksen emas & Logo */}
+          <div className="flex items-center gap-2.5 mb-3">
+            <img src="/alriyadl-logo.png" alt="Logo Al-Riyadl" className="h-10 w-10 object-contain" />
+            <div className="w-1 h-10 rounded-full" style={{ background: '#F0C030' }}></div>
             <div>
-              <p className="text-xs font-black uppercase tracking-widest" style={{ color: '#F0C030' }}>SIMPP</p>
-              <p className="text-base font-bold text-white leading-tight">AL-RIYADL</p>
+              <p className="text-sm font-black uppercase tracking-widest" style={{ color: '#F0C030' }}>SIMPP</p>
+              <p className="text-xl font-bold text-white leading-tight">AL-RIYADL</p>
             </div>
           </div>
           <p className="text-xs text-pesantren-300 leading-relaxed">
@@ -97,6 +98,12 @@ export default function Layout({ children, halamanAktif, onNavigasi }: LayoutPro
             label="Tambah Santri"
             aktif={halamanAktif === "tambah"}
             onClick={() => onNavigasi("tambah")}
+          />
+          <NavItem
+            icon={<FaFileAlt size={14} />}
+            label="Cetak Surat"
+            aktif={halamanAktif === "surat"}
+            onClick={() => onNavigasi("surat")}
           />
           <NavItem
             icon={<FaHistory size={14} />}
@@ -141,7 +148,7 @@ export default function Layout({ children, halamanAktif, onNavigasi }: LayoutPro
         </div>
       </aside>
 
-      {/* ── Area konten utama ── */}
+      {/* â”€â”€ Area konten utama â”€â”€ */}
       <main className="flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-950 print:overflow-visible print:h-auto print:block print:w-full transition-colors duration-200">
         {children}
       </main>
@@ -149,7 +156,7 @@ export default function Layout({ children, halamanAktif, onNavigasi }: LayoutPro
   );
 }
 
-// ── Komponen kecil: item menu sidebar ──
+// â”€â”€ Komponen kecil: item menu sidebar â”€â”€
 interface NavItemProps {
   icon?: React.ReactNode;
   label: string;
@@ -172,3 +179,4 @@ function NavItem({ icon, label, aktif, onClick }: NavItemProps) {
     </button>
   );
 }
+

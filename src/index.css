@@ -1,9 +1,9 @@
-/* Direktif wajib Tailwind CSS — urutan ini penting, jangan diubah */
+/* Direktif wajib Tailwind CSS -- urutan ini penting, jangan diubah */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* ── Aturan cetak (@media print) ──────────────────────────────
+/* Aturan cetak (@media print)
    Saat window.print() dipanggil:
    - html/body height dibebaskan (fix bug WebView2 "limit is 1 page")
    - Sidebar kiri disembunyikan (juga via Tailwind print:hidden)
@@ -11,17 +11,20 @@
    - Baris tabel tidak terpotong di tengah halaman
 */
 @media print {
+
   /* Wajib: bebaskan height html & body dari constraint 100vh */
-  html, body {
+  html,
+  body {
     height: auto !important;
     overflow: visible !important;
     background: white !important;
-    zoom: 0.75;
-    /* Scale print default menjadi 75% */
+    zoom: 0.7;
   }
 
   /* Sembunyikan sidebar navigasi */
-  aside { display: none !important; }
+  aside {
+    display: none !important;
+  }
 
   /* Konten mengisi halaman penuh tanpa clipping */
   main {
@@ -32,11 +35,23 @@
   }
 
   /* Hindari page break di dalam baris tabel */
-  tr { page-break-inside: avoid; }
+  tr {
+    page-break-inside: avoid;
+  }
 
   /* Ukuran margin halaman cetak */
-  @page { margin: 1.5cm; }
+  @page {
+    margin: 1.5cm;
+  }
+
+  /* Khusus Cetak Surat: kembalikan zoom ke 100% (1/0.7) */
+  .cetak-surat-area {
+    zoom: 1.42857 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
 }
+
 /* -- Transisi halus dark/light mode -- */
 * {
   transition-property: background-color, border-color, color;
@@ -45,6 +60,8 @@
 }
 
 /* Khusus input & select dark mode (tidak bisa via Tailwind saja karena select OS-style) */
-.dark input, .dark select, .dark textarea {
+.dark input,
+.dark select,
+.dark textarea {
   color-scheme: dark;
 }

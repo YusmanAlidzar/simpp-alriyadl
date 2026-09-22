@@ -11,7 +11,7 @@ export interface Santri {
   foto_santri: string | null;
   status: "aktif" | "lulus" | "keluar" | "nonaktif";
   kobong: string | null;
-  
+
   // Dari JOIN dengan tabel lain
   nama_kelas: string | null;
   nama_ayah: string | null;
@@ -37,7 +37,7 @@ export interface SantriForm {
   nomor_hp_santri: string;
   email_santri: string;
   foto_santri: string | null;
-  
+
   // 2. daftar_santri
   nis: string;
   kelas_id: string; // dikonversi ke number saat save

@@ -5,6 +5,7 @@ import type { Santri } from "../types/santri";
 import type { Kelas } from "../types/kelas";
 import { getAllSantri, getAllKelas, hapusSantri, getFotoDirPath, fotoKeDataUrl, getUnikKobong } from "../lib/db";
 import Modal from "../components/Modal";
+import ImportExcelModal from "../components/ImportExcelModal";
 import { LuSearch } from "react-icons/lu";
 
 interface DaftarSantriProps {
@@ -37,6 +38,8 @@ export default function DaftarSantri({ onTambah, onEdit }: DaftarSantriProps) {
     nis: string | null;
     namaSantri: string;
   }>({ terbuka: false, nis: null, namaSantri: "" });
+
+  const [modalImportOpen, setModalImportOpen] = useState(false);
 
   // Load daftar kelas dan kobong sekali saat komponen pertama kali muncul
   useEffect(() => {
@@ -92,12 +95,20 @@ export default function DaftarSantri({ onTambah, onEdit }: DaftarSantriProps) {
             {loading ? "Memuat..." : `${listSantri.length} santri ditemukan`}
           </p>
         </div>
-        <button
-          onClick={onTambah}
-          className="px-4 py-2 bg-pesantren-700 hover:bg-pesantren-800 text-white text-sm font-semibold rounded-lg transition-colors shadow-sm"
-        >
-          + Tambah Santri
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setModalImportOpen(true)}
+            className="px-4 py-2 bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-sm font-semibold rounded-lg transition-colors shadow-sm"
+          >
+            Import Excel
+          </button>
+          <button
+            onClick={onTambah}
+            className="px-4 py-2 bg-pesantren-700 hover:bg-pesantren-800 text-white text-sm font-semibold rounded-lg transition-colors shadow-sm"
+          >
+            + Tambah Santri
+          </button>
+        </div>
       </div>
 
       {/* ── Filter bar ── */}
@@ -249,6 +260,8 @@ export default function DaftarSantri({ onTambah, onEdit }: DaftarSantriProps) {
       </div>
 
       {/* ── Modal konfirmasi hapus ── */}
+      <ImportExcelModal isOpen={modalImportOpen} onClose={() => setModalImportOpen(false)} onSuccess={() => { setModalImportOpen(false); muatSantri(); }} />
+
       {modalHapus.terbuka && (
         <Modal
           judul="Hapus Data Santri"
