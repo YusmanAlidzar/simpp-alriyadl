@@ -34,7 +34,7 @@ function getDefaultNomorSurat(): string {
   const month = d.getMonth() + 1;
   const romanMonths = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
   const romanMonth = romanMonths[month - 1];
-  return .../PP.A//;
+  return `.../PP.A/${romanMonth}/${year}`;
 }
 
 function formatJenisKelamin(jk: string | null): string {
