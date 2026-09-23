@@ -28,6 +28,15 @@ function formatTanggalIndo(dateStr: string | null): string {
   }
 }
 
+function getDefaultNomorSurat(): string {
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = d.getMonth() + 1;
+  const romanMonths = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
+  const romanMonth = romanMonths[month - 1];
+  return .../PP.A//;
+}
+
 function formatJenisKelamin(jk: string | null): string {
   if (jk === "L") return "Laki-laki";
   if (jk === "P") return "Perempuan";
@@ -42,7 +51,7 @@ export default function CetakSurat() {
   const [santriTerpilih, setSantriTerpilih] = useState<Santri | null>(null);
   const [detailSantri, setDetailSantri] = useState<SantriForm | null>(null);
   // const [jenisSurat, setJenisSurat] = useState<JenisSurat | null>(null);
-  const [nomorSurat, setNomorSurat] = useState("");
+  const [nomorSurat, setNomorSurat] = useState(getDefaultNomorSurat());
 
   useEffect(() => {
     getAllSantri({ status: "aktif" })
@@ -71,7 +80,7 @@ export default function CetakSurat() {
 
   function kembali() {
     if (tahap === "preview") { setTahap("pilih_surat"); } // setJenisSurat(null);
-    else if (tahap === "pilih_surat") { setTahap("pilih_santri"); setSantriTerpilih(null); setDetailSantri(null); setNomorSurat(""); }
+    else if (tahap === "pilih_surat") { setTahap("pilih_santri"); setSantriTerpilih(null); setDetailSantri(null); setNomorSurat(getDefaultNomorSurat()); }
   }
 
   function handleCetak() { const originalTitle = document.title; if (detailSantri) { document.title = "Surat Keterangan Santri Aktif (SIMPP Al-Riyadl) - " + detailSantri.nama_santri; } window.print(); setTimeout(() => { document.title = originalTitle; }, 1000); } const tanggalCetak = formatTanggalIndo(new Date().toISOString());
