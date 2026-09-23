@@ -47,7 +47,6 @@ pendataan-santri/
 │   ├── database-schema.md    # Skema tabel SQLite
 │   ├── backup-restore.md     # Alur backup/restore
 │   └── Design.md             # Sistem warna dan panduan UI (Pesantren & Emas)
-├── AGENTS.md                 # Instruksi untuk AI agent (Antigravity) yang mengerjakan proyek ini
 └── README.md                 # File ini
 ```
 
@@ -71,4 +70,4 @@ Installer akan ada di `src-tauri/target/release/bundle/nsis/`.
 ✅ **Selesai (v1.2.4)** - Migrasi ke arsitektur ERD 8 tabel relasional, perbaikan transaksi SQLite, upload foto (3x4), laporan dinamis berdasarkan Kobong/Gender, perombakan tema UI (Hijau Pesantren & Emas Al-Riyadl), serta implementasi Dark Mode yang solid (termasuk fitur cetak Light Mode paksa).
 
 ## Directory Database
-C:\Users\[username]\AppData\Roaming\com.alriyadl.simpp\
+C:\Users\<username>\AppData\Roaming\com.alriyadl.simpp\
