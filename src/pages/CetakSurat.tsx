@@ -28,13 +28,28 @@ function formatTanggalIndo(dateStr: string | null): string {
   }
 }
 
-function getDefaultNomorSurat(): string {
+const NOMOR_SURAT_KEY = "simpp_last_nomor_surat";
+
+function getSufixNomorSurat(): string {
   const d = new Date();
   const year = d.getFullYear();
   const month = d.getMonth() + 1;
   const romanMonths = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
   const romanMonth = romanMonths[month - 1];
-  return `.../PP.A/${romanMonth}/${year}`;
+  return `PP.A/${romanMonth}/${year}`;
+}
+
+function getLastNomorUrut(): number {
+  const saved = localStorage.getItem(NOMOR_SURAT_KEY);
+  return saved ? parseInt(saved, 10) : 1;
+}
+
+function saveLastNomorUrut(n: number): void {
+  localStorage.setItem(NOMOR_SURAT_KEY, String(n));
+}
+
+function buildNomorSurat(nomor: number): string {
+  return `${String(nomor).padStart(3, "0")}/${getSufixNomorSurat()}`;
 }
 
 function formatJenisKelamin(jk: string | null): string {
@@ -51,7 +66,7 @@ export default function CetakSurat() {
   const [santriTerpilih, setSantriTerpilih] = useState<Santri | null>(null);
   const [detailSantri, setDetailSantri] = useState<SantriForm | null>(null);
   // const [jenisSurat, setJenisSurat] = useState<JenisSurat | null>(null);
-  const [nomorSurat, setNomorSurat] = useState(getDefaultNomorSurat());
+  const [nomorUrut, setNomorUrut] = useState<number>(getLastNomorUrut());
 
   useEffect(() => {
     getAllSantri({ status: "aktif" })
@@ -80,10 +95,16 @@ export default function CetakSurat() {
 
   function kembali() {
     if (tahap === "preview") { setTahap("pilih_surat"); } // setJenisSurat(null);
-    else if (tahap === "pilih_surat") { setTahap("pilih_santri"); setSantriTerpilih(null); setDetailSantri(null); setNomorSurat(getDefaultNomorSurat()); }
+    else if (tahap === "pilih_surat") { setTahap("pilih_santri"); setSantriTerpilih(null); setDetailSantri(null); setNomorUrut(getLastNomorUrut()); }
   }
 
-  function handleCetak() { const originalTitle = document.title; if (detailSantri) { document.title = "Surat Keterangan Santri Aktif (SIMPP Al-Riyadl) - " + detailSantri.nama_santri; } window.print(); setTimeout(() => { document.title = originalTitle; }, 1000); } const tanggalCetak = formatTanggalIndo(new Date().toISOString());
+  function handleCetak() {
+    saveLastNomorUrut(nomorUrut);
+    const originalTitle = document.title;
+    if (detailSantri) { document.title = "Surat Keterangan Santri Aktif (SIMPP Al-Riyadl) - " + detailSantri.nama_santri; }
+    window.print();
+    setTimeout(() => { document.title = originalTitle; }, 1000);
+  } const tanggalCetak = formatTanggalIndo(new Date().toISOString());
 
   return (
     <div className="min-h-full">
@@ -98,7 +119,7 @@ export default function CetakSurat() {
             <h2 className="text-2xl font-bold text-pesantren-900 dark:text-pesantren-200">Cetak Surat</h2>
             <p className="text-sm text-slate-500 mt-0.5">
               {tahap === "pilih_santri" && "Pilih santri yang akan dibuatkan surat."}
-              {tahap === "pilih_surat" && `Santri: ${santriTerpilih?.nama_santri} -- Pilih jenis surat.`}
+              {tahap === "pilih_surat" && `Santri: ${santriTerpilih?.nama_santri} - Pilih jenis surat.`}
               {tahap === "preview" && "Preview surat. Klik Cetak untuk mencetak."}
             </p>
           </div>
@@ -139,8 +160,19 @@ export default function CetakSurat() {
         {tahap === "pilih_surat" && (
           <div className="space-y-4">
             <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-5">
-              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Nomor Surat (opsional)</label>
-              <input type="text" placeholder="Contoh: 031/PP.A/VII/2026" value={nomorSurat} onChange={(e) => setNomorSurat(e.target.value)} className="w-full px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-pesantren-500 transition" />
+              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Nomor Surat</label>
+              <div className="flex items-center gap-3">
+                <input
+                  type="number"
+                  min={1}
+                  max={999}
+                  value={nomorUrut}
+                  onChange={(e) => setNomorUrut(Math.max(1, parseInt(e.target.value) || 1))}
+                  className="w-28 px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-pesantren-500 transition text-center font-mono"
+                />
+                <span className="text-sm text-slate-500 dark:text-slate-400 font-mono">/{getSufixNomorSurat()}</span>
+              </div>
+              <p className="mt-2 text-xs text-slate-400">Preview: <span className="font-semibold text-slate-600 dark:text-slate-300">{buildNomorSurat(nomorUrut)}</span></p>
             </div>
             {DAFTAR_SURAT.map((surat) => (
               <button key={surat.id} onClick={() => pilihJenisSurat(surat.id)} className="w-full text-left bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-5 hover:border-pesantren-400 dark:hover:border-pesantren-500 hover:shadow-md transition-all group">
@@ -167,7 +199,7 @@ export default function CetakSurat() {
             </div>
             <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
               <div className="p-8">
-                <SuratKeteranganAktifContent santri={detailSantri} nomorSurat={nomorSurat} tanggalCetak={tanggalCetak} />
+                <SuratKeteranganAktifContent santri={detailSantri} nomorSurat={buildNomorSurat(nomorUrut)} tanggalCetak={tanggalCetak} />
               </div>
             </div>
           </div>
@@ -176,7 +208,7 @@ export default function CetakSurat() {
 
       {tahap === "preview" && detailSantri && (
         <div className="hidden print:block cetak-surat-area">
-          <SuratKeteranganAktifContent santri={detailSantri} nomorSurat={nomorSurat} tanggalCetak={tanggalCetak} />
+          <SuratKeteranganAktifContent santri={detailSantri} nomorSurat={buildNomorSurat(nomorUrut)} tanggalCetak={tanggalCetak} />
         </div>
       )}
     </div>
@@ -212,7 +244,7 @@ function SuratKeteranganAktifContent({ santri, nomorSurat, tanggalCetak }: Surat
 
       <div style={{ textAlign: "center", marginBottom: "24px" }}>
         <h1 style={{ fontSize: "14pt", fontWeight: "bold", textDecoration: "underline", letterSpacing: "1px", margin: 0 }}>SURAT KETERANGAN</h1>
-        {nomorSurat && <p style={{ margin: "4px 0 0 0", fontSize: "12pt" }}>Nomor : {nomorSurat}</p>}
+        <p style={{ margin: "4px 0 0 0", fontSize: "12pt" }}>Nomor : {nomorSurat}</p>
       </div>
 
       <div style={{ textAlign: "justify" }}>
